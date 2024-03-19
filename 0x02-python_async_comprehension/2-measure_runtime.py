@@ -2,8 +2,6 @@
 """
 Run time for four parallel comprehensions
 """
-
-
 import asyncio
 from typing import List
 from time import perf_counter
@@ -27,5 +25,4 @@ async def measure_runtime() -> float:
 
     end_time = perf_counter()
     return end_time - start_time
-
-asyncio.run(measure_runtime())
+# asyncio.run(measure_runtime())
