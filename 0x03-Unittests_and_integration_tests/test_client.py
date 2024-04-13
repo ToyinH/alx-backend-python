@@ -59,29 +59,38 @@ class TestGithubOrgClient(unittest.TestCase):
             self.assertEqual(result, org_payload["repos_url"])
     
 
-    def test_public_repos(self):
+    @patch('client.GithubOrgClient.get_json')
+    @patch.object(GithubOrgClient, '_public_repos_url', new_callable=unittest.mock.PropertyMock)
+    def test_public_repos(self, mock_public_repos_url, mock_get_json):
         """
         Test method to test the public_repos method of GithubOrgClient.
         """
-        # Define fixture data for _public_repos_url
-        public_repos_fixture = [
-            {"name": "repo1", "license": {"key": "mit"}},
-            {"name": "repo2", "license": {"key": "apache-2.0"}},
-            {"name": "repo3", "license": None}
-        ]
+        # Define a payload for get_json
+        get_json_payload = [{"name": "repo1"}, {"name": "repo2"}, {"name": "repo3"}]
 
-        # Patch the _public_repos_url property to return the fixture data
-        with patch.object(GithubOrgClient, '_public_repos_url', new_callable=unittest.mock.PropertyMock) as mock_public_repos_url:
-            mock_public_repos_url.return_value = public_repos_fixture
+        # Define a value for _public_repos_url
+        public_repos_url_value = "https://api.github.com/orgs/testorg/repos"
 
-            # Create an instance of GithubOrgClient
-            github_org_client = GithubOrgClient("testorg")
+        # Mock the return value of get_json
+        mock_get_json.return_value = get_json_payload
 
-            # Call the public_repos method
-            result = github_org_client.public_repos()
+        # Mock the return value of _public_repos_url
+        mock_public_repos_url.return_value = public_repos_url_value
 
-            # Assert that the result is equal to the expected fixture data
-            self.assertEqual(result, ["repo1", "repo2", "repo3"])
+        # Create an instance of GithubOrgClient
+        github_org_client = GithubOrgClient("testorg")
+
+        # Call the public_repos method
+        result = github_org_client.public_repos()
+
+        # Assert that the result is equal to the expected payload
+        self.assertEqual(result, [repo['name'] for repo in get_json_payload])
+
+        # Assert that _public_repos_url property was called once
+        mock_public_repos_url.assert_called_once()
+
+        # Assert that get_json was called once with the correct argument
+        mock_get_json.assert_called_once_with(public_repos_url_value)
 
     def test_public_repos_with_license(self):
         """
