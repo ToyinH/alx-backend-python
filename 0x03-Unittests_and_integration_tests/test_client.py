@@ -57,6 +57,56 @@ class TestGithubOrgClient(unittest.TestCase):
 
             # Assert that the result is the expected repos_url from the mocked payload
             self.assertEqual(result, org_payload["repos_url"])
+    
+
+    def test_public_repos(self):
+        """
+        Test method to test the public_repos method of GithubOrgClient.
+        """
+        # Define fixture data for _public_repos_url
+        public_repos_fixture = [
+            {"name": "repo1", "license": {"key": "mit"}},
+            {"name": "repo2", "license": {"key": "apache-2.0"}},
+            {"name": "repo3", "license": None}
+        ]
+
+        # Patch the _public_repos_url property to return the fixture data
+        with patch.object(GithubOrgClient, '_public_repos_url', new_callable=unittest.mock.PropertyMock) as mock_public_repos_url:
+            mock_public_repos_url.return_value = public_repos_fixture
+
+            # Create an instance of GithubOrgClient
+            github_org_client = GithubOrgClient("testorg")
+
+            # Call the public_repos method
+            result = github_org_client.public_repos()
+
+            # Assert that the result is equal to the expected fixture data
+            self.assertEqual(result, ["repo1", "repo2", "repo3"])
+
+    def test_public_repos_with_license(self):
+        """
+        Test method to test the public_repos_with_license method of GithubOrgClient.
+        """
+        # Define fixture data for _public_repos_url
+        public_repos_fixture = [
+            {"name": "repo1", "license": {"key": "mit"}},
+            {"name": "repo2", "license": {"key": "apache-2.0"}},
+            {"name": "repo3", "license": None}
+        ]
+
+        # Patch the _public_repos_url property to return the fixture data
+        with patch.object(GithubOrgClient, '_public_repos_url', new_callable=unittest.mock.PropertyMock) as mock_public_repos_url:
+            mock_public_repos_url.return_value = public_repos_fixture
+
+            # Create an instance of GithubOrgClient
+            github_org_client = GithubOrgClient("testorg")
+
+            # Call the public_repos_with_license method with license="apache-2.0"
+            result = github_org_client.public_repos_with_license("apache-2.0")
+
+            # Assert that the result is equal to the expected fixture data filtered by license
+            self.assertEqual(result, ["repo2"])
+
 
 if __name__ == "__main__":
     unittest.main()
